@@ -21,50 +21,64 @@ class InteractionView extends StatelessWidget {
               decoration: const InputDecoration(
                 labelText: 'Search drugs by name',
                 prefixIcon: Icon(Icons.search),
+                border: OutlineInputBorder(),
               ),
             ),
-            const SizedBox(height: 8),
-
-            // Selected drugs
-            Obx(
-              () => c.selected.isEmpty
-                  ? const SizedBox.shrink()
-                  : SizedBox(
-                      height: 70,
-                      child: ListView.separated(
-                        scrollDirection: Axis.horizontal,
-                        itemCount: c.selected.length,
-                        separatorBuilder: (_, __) => const SizedBox(width: 8),
-                        itemBuilder: (context, i) => Chip(
-                          label: Text(c.selected[i]),
-                          onDeleted: () => c.removeSelectedAt(i),
-                        ),
-                      ),
-                    ),
-            ),
-
-            const SizedBox(height: 8),
-
+            const SizedBox(height: 8),     
             // Suggestions
             Expanded(
-              child: Obx(() {
-                if (c.allDrugNames.isEmpty)
-                  return const Center(child: Text('Loading...'));
-                if (c.suggestions.isEmpty)
-                  return const Center(child: Text('No suggestions'));
-                return ListView.builder(
-                  itemCount: c.suggestions.length,
-                  itemBuilder: (context, i) {
-                    final name = c.suggestions[i];
-                    return Card(
-                      child: ListTile(
-                        title: Text(name),
-                        onTap: () => c.addSelected(name),
+              child: Stack(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(top: 30),
+                    child: Obx(
+                                  () => c.selected.isEmpty
+                    ? const SizedBox.shrink()
+                    : SizedBox(
+                        child: ListView.separated(
+                          scrollDirection: Axis.vertical,
+                          itemCount: c.selected.length,
+                          separatorBuilder: (_, __) => const SizedBox(width: 8),
+                          itemBuilder: (context, i) => Chip(
+                            
+                            label: Text(c.selected[i]),
+                            onDeleted: () => c.removeSelectedAt(i),
+                          ),
+                        ),
                       ),
+                                ),
+                  ),
+                  Obx(() {
+                    if (c.allDrugs.isEmpty) {
+                      return const Center(child: Text('Loading...'));
+                    }
+                    if (c.suggestions.isEmpty) {
+                      return Text('No suggestions');
+                    }
+                    return ListView.builder(
+                      itemCount: c.suggestions.length,
+                      itemBuilder: (context, i) {
+                        final drug = c.suggestions[i];
+                        final title =
+                            (drug.enName?.toString().isNotEmpty ?? false)
+                            ? drug.enName
+                            : drug.arName;
+                        final subtitle =
+                            (drug.arName?.toString().isNotEmpty ?? false)
+                            ? drug.arName
+                            : null;
+                        return Card(
+                          child: ListTile(
+                            title: Text(title ?? ''),
+                            subtitle: subtitle != null ? Text(subtitle) : null,
+                            onTap: () => c.addSelected(drug),
+                          ),
+                        );
+                      },
                     );
-                  },
-                );
-              }),
+                  }),
+                ],
+              ),
             ),
           ],
         ),

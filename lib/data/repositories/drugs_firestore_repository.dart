@@ -8,17 +8,21 @@ class DrugsFirestoreRepository implements DrugsRepository {
     : firestore = firestore ?? FirebaseFirestore.instance;
 
   @override
-  Future<List<String>> fetchAllDrugNames() async {
+  Future<List<SearchDrug>> fetchAllDrugs() async {
     final snapshot = await firestore.collection('drugs').get();
-    final names = snapshot.docs
+    final items = snapshot.docs
         .map((d) {
           final data = d.data();
-          return (data['enName'] ?? data['name'] ?? '').toString();
+          final id = d.id;
+          final en = (data['enName'] ?? data['name'] ?? '').toString();
+          final ar = (data['arName'] ?? data['arabic'] ?? '').toString();
+          return SearchDrug(id: id, enName: en, arName: ar);
         })
-        .where((s) => s.isNotEmpty)
-        .toSet()
+        .where((s) => s.enName.isNotEmpty || s.arName.isNotEmpty)
         .toList();
-    names.sort((a, b) => a.toLowerCase().compareTo(b.toLowerCase()));
-    return names;
+    items.sort(
+      (a, b) => a.enName.toLowerCase().compareTo(b.enName.toLowerCase()),
+    );
+    return items;
   }
 }

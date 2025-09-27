@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import '../../../data/repositories/drugs_repository.dart';
 
 class InteractionController extends GetxController {
-  final allDrugNames = <String>[].obs;
-  final suggestions = <String>[].obs;
+  final allDrugs = <dynamic>[].obs; // holds SearchDrug objects
+  final suggestions = <dynamic>[].obs;
   final selected = <String>[].obs;
 
   final TextEditingController searchController = TextEditingController();
@@ -31,8 +31,8 @@ class InteractionController extends GetxController {
 
   Future<void> _fetchAllDrugNames() async {
     try {
-      final names = await repository.fetchAllDrugNames();
-      allDrugNames.assignAll(names);
+      final drugs = await repository.fetchAllDrugs();
+      allDrugs.assignAll(drugs);
     } catch (_) {
       // ignore errors for now
     }
@@ -44,15 +44,22 @@ class InteractionController extends GetxController {
       suggestions.clear();
       return;
     }
-    final matches = allDrugNames
-        .where((n) => n.toLowerCase().contains(q))
+    final matches = allDrugs
+        .where((d) {
+          final en = (d.enName ?? '').toString().toLowerCase();
+          final ar = (d.arName ?? '').toString().toLowerCase();
+          return en.contains(q) || ar.contains(q);
+        })
         .take(10)
         .toList();
     suggestions.assignAll(matches);
   }
 
-  void addSelected(String name) {
-    if (!selected.contains(name)) selected.add(name);
+  void addSelected(dynamic drug) {
+    final display = (drug.enName?.toString().isNotEmpty ?? false)
+        ? drug.enName
+        : drug.arName;
+    if (!selected.contains(display)) selected.add(display);
     searchController.clear();
     focusNode.requestFocus();
     suggestions.clear();
