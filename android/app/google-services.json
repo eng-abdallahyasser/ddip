@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "357420401265",
+    "project_id": "ddip-fd9f8",
+    "storage_bucket": "ddip-fd9f8.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:357420401265:android:7bd2889cbb3b650792d1d0",
+        "android_client_info": {
+          "package_name": "com.example.ddip"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "357420401265-h7gu0rk3lvqg4rnds9vv90n7rj7cse97.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDCF2AZt2lC17ltfIVDvmTZ69fzpw1blyo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "357420401265-h7gu0rk3lvqg4rnds9vv90n7rj7cse97.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
