@@ -15,6 +15,13 @@ class HomeView extends StatelessWidget {
         title: const Text('DDIP Home'),
         actions: [
           IconButton(
+            tooltip: 'Upload samples',
+            icon: const Icon(Icons.upload),
+            onPressed: () {
+              Get.toNamed(Routes.uploadSamples);
+            },
+          ),
+          IconButton(
             tooltip: 'Sign out',
             icon: const Icon(Icons.logout),
             onPressed: () async {
@@ -24,8 +31,12 @@ class HomeView extends StatelessWidget {
           ),
         ],
       ),
-      body: const Center(
-        child: Text('Welcome to DDIP — Drug-Drug Interactions app'),
+      body: const Column(
+        children: [
+          Text('Welcome to DDIP — Drug-Drug Interactions app'),
+          SizedBox(height: 20),
+
+        ],
       ),
     );
   }
