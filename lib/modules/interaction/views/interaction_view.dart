@@ -24,59 +24,109 @@ class InteractionView extends StatelessWidget {
                 border: OutlineInputBorder(),
               ),
             ),
-            const SizedBox(height: 8),     
-            // Suggestions
+            const SizedBox(height: 8),
+            // Selected drugs and suggestions
             Expanded(
-              child: Stack(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Padding(
-                    padding: const EdgeInsets.only(top: 30),
-                    child: Obx(
-                                  () => c.selected.isEmpty
-                    ? const SizedBox.shrink()
-                    : SizedBox(
-                        child: ListView.separated(
-                          scrollDirection: Axis.vertical,
-                          itemCount: c.selected.length,
-                          separatorBuilder: (_, __) => const SizedBox(width: 8),
-                          itemBuilder: (context, i) => Chip(
-                            
-                            label: Text(c.selected[i]),
-                            onDeleted: () => c.removeSelectedAt(i),
+                  Obx(() {
+                    if (c.selectedDrugs.isEmpty || c.suggestions.isNotEmpty) {
+                      return const SizedBox.shrink();
+                    }
+                    return Wrap(
+                      spacing: 8,
+                      runSpacing: 4,
+                      children: List.generate(
+                        c.selectedDrugs.length,
+                        (i) => Chip(
+                          label: Text(
+                            c.selectedDrugs[i].enName 
                           ),
+                          onDeleted: () => c.removeSelectedAt(i),
                         ),
                       ),
-                                ),
-                  ),
-                  Obx(() {
-                    if (c.allDrugs.isEmpty) {
-                      return const Center(child: Text('Loading...'));
-                    }
-                    if (c.suggestions.isEmpty) {
-                      return Text('No suggestions');
-                    }
-                    return ListView.builder(
-                      itemCount: c.suggestions.length,
-                      itemBuilder: (context, i) {
-                        final drug = c.suggestions[i];
-                        final title =
-                            (drug.enName?.toString().isNotEmpty ?? false)
-                            ? drug.enName
-                            : drug.arName;
-                        final subtitle =
-                            (drug.arName?.toString().isNotEmpty ?? false)
-                            ? drug.arName
-                            : null;
-                        return Card(
-                          child: ListTile(
-                            title: Text(title ?? ''),
-                            subtitle: subtitle != null ? Text(subtitle) : null,
-                            onTap: () => c.addSelected(drug),
-                          ),
-                        );
-                      },
                     );
                   }),
+
+                  const SizedBox(height: 12),
+
+                  // Interactions list
+                  Obx(() {
+                    if (c.interactionsFounded.isEmpty || c.suggestions.isNotEmpty) {
+                      return const SizedBox.shrink();
+                    }
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Interactions found',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        ListView.separated(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemCount: c.interactionsFounded.length,
+                          separatorBuilder: (_, __) =>
+                              const SizedBox(height: 8),
+                          itemBuilder: (context, idx) {
+                            final it = c.interactionsFounded[idx];
+                            return Card(
+                              child: ListTile(
+                                title: Text(
+                                  '${it.activeIngredientA} ↔ ${it.activeIngredientB}',
+                                ),
+                                subtitle: Text(it.description),
+                                trailing: Text(
+                                  it.severity.toString().split('.').last,
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ],
+                    );
+                  }),
+
+                  const SizedBox(height: 12),
+
+                  Expanded(
+                    child: Obx(() {
+                      if (c.allDrugs.isEmpty) {
+                        return const Center(child: Text('Loading...'));
+                      }
+                      if (c.suggestions.isEmpty && c.selectedDrugs.isEmpty) {
+                        return Center(child: Text('No suggestions found, ${c.allDrugs.length} drugs available.'));
+                      }
+                      return ListView.builder(
+                        itemCount: c.suggestions.length,
+                        itemBuilder: (context, i) {
+                          final drug = c.suggestions[i];
+                          final title =
+                              (drug.enName?.toString().isNotEmpty ?? false)
+                              ? drug.enName
+                              : drug.arName;
+                          final subtitle =
+                              (drug.arName?.toString().isNotEmpty ?? false)
+                              ? drug.arName
+                              : null;
+                          return Card(
+                            child: ListTile(
+                              title: Text(title ?? ''),
+                              subtitle: subtitle != null
+                                  ? Text(subtitle)
+                                  : null,
+                              onTap: () => c.addSelected(drug),
+                            ),
+                          );
+                        },
+                      );
+                    }),
+                  ),
                 ],
               ),
             ),

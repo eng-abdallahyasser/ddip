@@ -9,6 +9,8 @@ import '../modules/main/views/main_view.dart';
 import '../data/services/auth_service.dart';
 import '../data/repositories/drugs_repository.dart';
 import '../data/repositories/drugs_firestore_repository.dart';
+import '../data/repositories/interactions_repository.dart';
+import '../data/repositories/interactions_firestore_repository.dart';
 import '../modules/interaction/bindings/interaction_binding.dart';
 import '../modules/splash/views/splash_view.dart';
 
@@ -37,6 +39,9 @@ class AppPages {
       binding: BindingsBuilder(() {
         Get.lazyPut<AuthService>(() => AuthService());
         Get.lazyPut<DrugsRepository>(() => DrugsFirestoreRepository());
+        Get.lazyPut<InteractionsRepository>(
+          () => InteractionsFirestoreRepository(),
+        );
         // register interaction controller lazily via binding
         InteractionBinding().dependencies();
       }),

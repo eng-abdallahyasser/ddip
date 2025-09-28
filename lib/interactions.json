@@ -1,0 +1,167 @@
+[
+    {
+        "id": "1",
+        "drugA": "Warfarin",
+        "drugB": "Aspirin",
+        "severity": "severe",
+        "description": "Increased risk of bleeding and bruising",
+        "mechanism": "Additive anticoagulant effect - both drugs inhibit platelet function",
+        "management": "Avoid combination. If necessary, monitor INR closely and watch for bleeding signs",
+        "evidenceLevel": "Well-established",
+        "clinicalSignificance": "Highly clinically significant"
+    },
+    {
+        "id": "2",
+        "drugA": "Warfarin",
+        "drugB": "Ibuprofen",
+        "severity": "severe",
+        "description": "Increased risk of gastrointestinal bleeding",
+        "mechanism": "NSAIDs inhibit prostaglandins that protect gastric mucosa + potentiate warfarin effect",
+        "management": "Use alternative analgesic. If unavoidable, monitor INR and use gastric protection",
+        "evidenceLevel": "Well-established",
+        "clinicalSignificance": "Highly clinically significant"
+    },
+    {
+        "id": "3",
+        "drugA": "Simvastatin",
+        "drugB": "Clarithromycin",
+        "severity": "severe",
+        "description": "Increased risk of myopathy and rhabdomyolysis",
+        "mechanism": "Clarithromycin inhibits CYP3A4 metabolism of simvastatin",
+        "management": "Avoid combination. Use alternative statin or antibiotic",
+        "evidenceLevel": "Well-established",
+        "clinicalSignificance": "Highly clinically significant"
+    },
+    {
+        "id": "4",
+        "drugA": "Digoxin",
+        "drugB": "Furosemide",
+        "severity": "moderate",
+        "description": "Risk of digoxin toxicity due to hypokalemia",
+        "mechanism": "Furosemide causes potassium loss which sensitizes myocardium to digoxin",
+        "management": "Monitor potassium levels regularly. Maintain potassium >4.0 mEq/L",
+        "evidenceLevel": "Well-established",
+        "clinicalSignificance": "Clinically significant"
+    },
+    {
+        "id": "5",
+        "drugA": "Metformin",
+        "drugB": "Contrast Media",
+        "severity": "severe",
+        "description": "Risk of lactic acidosis",
+        "mechanism": "Contrast media impair renal function leading to metformin accumulation",
+        "management": "Stop metformin 48 hours before and after contrast procedure",
+        "evidenceLevel": "Well-established",
+        "clinicalSignificance": "Highly clinically significant"
+    },
+    {
+        "id": "6",
+        "drugA": "ACE Inhibitors",
+        "drugB": "Potassium-Sparing Diuretics",
+        "severity": "moderate",
+        "description": "Risk of hyperkalemia",
+        "mechanism": "Both drugs reduce potassium excretion",
+        "management": "Monitor potassium levels. Avoid potassium supplements",
+        "evidenceLevel": "Well-established",
+        "clinicalSignificance": "Clinically significant"
+    },
+    {
+        "id": "7",
+        "drugA": "SSRIs",
+        "drugB": "NSAIDs",
+        "severity": "moderate",
+        "description": "Increased risk of gastrointestinal bleeding",
+        "mechanism": "SSRIs inhibit platelet serotonin uptake, NSAIDs inhibit prostaglandins",
+        "management": "Use with caution. Consider gastric protection with PPI",
+        "evidenceLevel": "Well-established",
+        "clinicalSignificance": "Clinically significant"
+    },
+    {
+        "id": "8",
+        "drugA": "Beta Blockers",
+        "drugB": "Calcium Channel Blockers",
+        "severity": "moderate",
+        "description": "Additive bradycardia and hypotension",
+        "mechanism": "Both drugs depress SA and AV node function",
+        "management": "Monitor heart rate and blood pressure. Start with low doses",
+        "evidenceLevel": "Well-established",
+        "clinicalSignificance": "Clinically significant"
+    },
+    {
+        "id": "9",
+        "drugA": "Levothyroxine",
+        "drugB": "Calcium Carbonate",
+        "severity": "moderate",
+        "description": "Decreased levothyroxine absorption",
+        "mechanism": "Calcium binds levothyroxine in GI tract",
+        "management": "Administer levothyroxine 4 hours before or after calcium",
+        "evidenceLevel": "Well-established",
+        "clinicalSignificance": "Clinically significant"
+    },
+    {
+        "id": "10",
+        "drugA": "Oral Contraceptives",
+        "drugB": "Antibiotics",
+        "severity": "mild",
+        "description": "Potential decreased contraceptive efficacy",
+        "mechanism": "Antibiotics may alter gut flora affecting enterohepatic recycling",
+        "management": "Use backup contraception during antibiotic therapy",
+        "evidenceLevel": "Theoretical",
+        "clinicalSignificance": "Moderately significant"
+    },
+    {
+        "id": "11",
+        "drugA": "Warfarin",
+        "drugB": "Omeprazole",
+        "severity": "moderate",
+        "description": "Potential increased warfarin effect",
+        "mechanism": "Omeprazole inhibits CYP2C19 which may affect warfarin metabolism",
+        "management": "Monitor INR when starting or stopping omeprazole",
+        "evidenceLevel": "Moderate",
+        "clinicalSignificance": "Clinically significant"
+    },
+    {
+        "id": "12",
+        "drugA": "Statins",
+        "drugB": "Grapefruit Juice",
+        "severity": "moderate",
+        "description": "Increased statin levels and toxicity risk",
+        "mechanism": "Grapefruit inhibits CYP3A4 metabolism of statins",
+        "management": "Avoid large quantities of grapefruit juice with statins",
+        "evidenceLevel": "Well-established",
+        "clinicalSignificance": "Clinically significant"
+    },
+    {
+        "id": "13",
+        "drugA": "Lithium",
+        "drugB": "NSAIDs",
+        "severity": "severe",
+        "description": "Increased lithium levels and toxicity risk",
+        "mechanism": "NSAIDs reduce renal lithium clearance",
+        "management": "Avoid combination. Monitor lithium levels if used together",
+        "evidenceLevel": "Well-established",
+        "clinicalSignificance": "Highly clinically significant"
+    },
+    {
+        "id": "14",
+        "drugA": "MAOIs",
+        "drugB": "SSRIs",
+        "severity": "severe",
+        "description": "Risk of serotonin syndrome",
+        "mechanism": "Additive serotonin enhancement",
+        "management": "Absolute contraindication. Allow 2-week washout period",
+        "evidenceLevel": "Well-established",
+        "clinicalSignificance": "Highly clinically significant"
+    },
+    {
+        "id": "15",
+        "drugA": "Warfarin",
+        "drugB": "Vitamin K",
+        "severity": "moderate",
+        "description": "Decreased warfarin anticoagulant effect",
+        "mechanism": "Vitamin K antagonizes warfarin's effect",
+        "management": "Maintain consistent vitamin K intake. Monitor INR",
+        "evidenceLevel": "Well-established",
+        "clinicalSignificance": "Clinically significant"
+    }
+]

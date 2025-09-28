@@ -18,11 +18,13 @@ Future<void> uploadSamples({required void Function(String) onLog}) async {
   for (final item in list) {
     try {
       final map = Map<String, dynamic>.from(item as Map);
-      final drug = Drug.fromJson(map);
-      final docId = drug.id;
-      final data = drug.toMap();
+      
+      final docId = map['id'];
 
-      await firestore.collection('drugs').doc(docId).set(data);
+      final activeIngredients = parseActiveIngredients(map['active']);
+      map['activeIngredients'] = activeIngredients;
+
+      await firestore.collection('drugs').doc(docId).set(map);
       uploaded++;
       onLog('Uploaded id=$docId');
     } catch (e, st) {
@@ -32,6 +34,60 @@ Future<void> uploadSamples({required void Function(String) onLog}) async {
   }
 
   onLog('Done. Uploaded $uploaded entries.');
+}
+
+List<String> parseActiveIngredients(String? active) {
+    if (active == null) return [];
+    return active.split('+').map((s) => s.trim()).where((s) => s.isNotEmpty).toList();
+  }
+
+/// Reads `lib/interactions.json` and uploads entries to Firestore under
+/// collection `interactions`.
+Future<void> uploadInteractions({required void Function(String) onLog}) async {
+  onLog('Loading interactions.json from assets...');
+  late String raw;
+  try {
+    raw = await rootBundle.loadString('lib/interactions.json');
+  } catch (e) {
+    onLog('Failed to load lib/interactions.json: $e');
+    return;
+  }
+
+  final list = json.decode(raw) as List<dynamic>;
+  onLog('Found ${list.length} interaction entries');
+
+  final firestore = FirebaseFirestore.instance;
+  int uploaded = 0;
+
+  for (final item in list) {
+    try {
+      final map = Map<String, dynamic>.from(item as Map);
+      // Ensure required fields exist; fall back to empty strings when missing
+      final entry = {
+        'id': map['id']?.toString() ?? '',
+        'drugAId': map['drugA']?.toString() ?? map['drugAId']?.toString() ?? map['a']?.toString() ?? '',
+        'drugBId': map['drugB']?.toString() ?? map['drugBId']?.toString() ?? map['b']?.toString() ?? '',
+        'severity':
+            map['severity']?.toString() ?? map['level']?.toString() ?? 'mild',
+        'description': map['description']?.toString() ?? '',
+        'mechanism': map['mechanism']?.toString() ?? '',
+        'management': map['management']?.toString() ?? '',
+        'evidenceLevel':
+            map['evidenceLevel']?.toString() ??
+            map['evidence']?.toString() ??
+            '',
+      };
+
+      await firestore.collection('interactions').doc(map['id']).set(entry);
+      uploaded++;
+      onLog('Uploaded interaction ${entry['drugAId']} <-> ${entry['drugBId']}');
+    } catch (e, st) {
+      onLog('Failed to upload interaction entry: $e');
+      onLog(st.toString());
+    }
+  }
+
+  onLog('Done. Uploaded $uploaded interactions.');
 }
 
 /// A small debug button widget that runs the upload and shows logs.
@@ -45,6 +101,7 @@ class UploadSamplesButton extends StatefulWidget {
 class _UploadSamplesButtonState extends State<UploadSamplesButton> {
   final List<String> _logs = [];
   bool _running = false;
+  bool _runningInteractions = false;
 
   void _addLog(String s) {
     setState(() => _logs.insert(0, '${DateTime.now().toIso8601String()} - $s'));
@@ -63,16 +120,48 @@ class _UploadSamplesButtonState extends State<UploadSamplesButton> {
     }
   }
 
+  Future<void> _runInteractions() async {
+    if (_runningInteractions) return;
+    setState(() => _runningInteractions = true);
+    _addLog('Starting interactions upload...');
+    try {
+      await uploadInteractions(onLog: _addLog);
+    } catch (e) {
+      _addLog('Interactions upload failed: $e');
+    } finally {
+      setState(() => _runningInteractions = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        ElevatedButton(
-          onPressed: _running ? null : _run,
-          child: Text(
-            _running ? 'Uploading...' : 'Upload sample.json to Firestore',
-          ),
+        Row(
+          children: [
+            Expanded(
+              child: ElevatedButton(
+                onPressed: _running ? null : _run,
+                child: Text(
+                  _running
+                      ? 'Uploading drugs...'
+                      : 'Upload sample.json to Firestore',
+                ),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: ElevatedButton(
+                onPressed: _runningInteractions ? null : _runInteractions,
+                child: Text(
+                  _runningInteractions
+                      ? 'Uploading interactions...'
+                      : 'Upload interactions.json',
+                ),
+              ),
+            ),
+          ],
         ),
         const SizedBox(height: 8),
         const Text('Logs', style: TextStyle(fontWeight: FontWeight.bold)),

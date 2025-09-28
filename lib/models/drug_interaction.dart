@@ -1,8 +1,8 @@
 enum InteractionSeverity { severe, moderate, mild }
 
 class DrugInteraction {
-  final String drugAId;
-  final String drugBId;
+  final String activeIngredientA;
+  final String activeIngredientB;
   final InteractionSeverity severity; // Severe, Moderate, Mild
   final String description;
   final String mechanism;
@@ -10,8 +10,8 @@ class DrugInteraction {
   final String evidenceLevel;
 
   DrugInteraction({
-    required this.drugAId,
-    required this.drugBId,
+    required this.activeIngredientA,
+    required this.activeIngredientB,
     required this.severity,
     required this.description,
     required this.mechanism,
@@ -34,8 +34,8 @@ class DrugInteraction {
     }
 
     return DrugInteraction(
-      drugAId: json['drugAId']?.toString() ?? '',
-      drugBId: json['drugBId']?.toString() ?? '',
+      activeIngredientA: json['drugAId']?.toString() ?? '',
+      activeIngredientB: json['drugBId']?.toString() ?? '',
       severity: parseSeverity(json['severity']?.toString()),
       description: json['description']?.toString() ?? '',
       mechanism: json['mechanism']?.toString() ?? '',
@@ -57,8 +57,8 @@ class DrugInteraction {
     }
 
     return {
-      'drugAId': drugAId,
-      'drugBId': drugBId,
+      'drugAId': activeIngredientA,
+      'drugBId': activeIngredientB,
       'severity': severityToString(severity),
       'description': description,
       'mechanism': mechanism,

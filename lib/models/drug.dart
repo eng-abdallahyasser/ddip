@@ -45,8 +45,8 @@ class Drug {
     final idRaw = json['id'];
     final id = idRaw == null ? '' : idRaw.toString();
 
-    final enName = (json['name'] ?? '').toString();
-    final arName = (json['arabic'] ?? '').toString();
+    final enName = (json['name'] ?? json['enName'] ?? '').toString();
+    final arName = (json['arabic'] ?? json['arName'] ??'').toString();
 
     double? parseDouble(dynamic v) {
       if (v == null) return null;
@@ -123,5 +123,10 @@ class Drug {
       'imported': imported,
       if (dateUpdated != null) 'dateUpdated': Timestamp.fromDate(dateUpdated!),
     };
+  }
+
+  @override
+  String toString(){
+    return 'Drug{id: $id, \nenName: $enName, \narName: $arName, \noldPrice: $oldPrice, \nprice: $price, \nactive: $active, \nactiveIngredients: $activeIngredients, \ncompany: $company, description: $description, units: $units, dosageForm: $dosageForm, barcode: $barcode, imported: $imported, dateUpdated: $dateUpdated}';
   }
 }
