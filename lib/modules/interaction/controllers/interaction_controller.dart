@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'package:ddip/data/services/gemini_service.dart';
 import 'package:ddip/models/drug.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
@@ -14,9 +15,14 @@ class InteractionController extends GetxController {
   final suggestions = <dynamic>[].obs;
   // selected holds full Drug maps (as returned by fetchDrugById)
   final selectedDrugs = <Drug>[].obs;
+  final setOfActiveIngredients = <String>{}.obs;
+
+  final geminiService = GeminiService();
+  final geminiFeedback = "".obs; // store feedback text
 
   // found interactions between selected drugs
   final interactionsFounded = <DrugInteraction>[].obs;
+  final loading = false.obs;
 
   final TextEditingController searchController = TextEditingController();
   final FocusNode focusNode = FocusNode();
@@ -85,19 +91,29 @@ class InteractionController extends GetxController {
       return;
     }
 
+    loading.value = true;
+    geminiFeedback.value = "Gemini thinking...";
+
     // fetch full drug properties
     final full = await drugsRepository.fetchDrugById(id);
     if (full == null) return;
+    for (final activeIngredient in full.activeIngredients) {
+      setOfActiveIngredients.add(activeIngredient);
+    }
+    setOfActiveIngredients.toSet();
 
     log("fetchDrug ${full.toString()}");
 
     selectedDrugs.add(full);
 
     checkInteractions();
+    getGeminiFeedback();
 
     searchController.clear();
     focusNode.requestFocus();
     suggestions.clear();
+
+    loading.value = false;
   }
 
   /// Recompute interactions for all currently selected drugs.
@@ -166,6 +182,31 @@ class InteractionController extends GetxController {
   void removeSelectedAt(int index) {
     selectedDrugs.removeAt(index);
     // Recompute interactions after a removal
+    setOfActiveIngredients.clear();
+    for (final drug in selectedDrugs) {
+      for (final activeIngredient in drug.activeIngredients) {
+        setOfActiveIngredients.add(activeIngredient);
+      }
+    }
+    setOfActiveIngredients.toSet();
     checkInteractions();
+  }
+
+  Future<void> getGeminiFeedback() async {
+    try {
+      if (selectedDrugs.isEmpty) return;
+
+      final drugNames = selectedDrugs
+          .map((d) => "${d.enName} contain active ingredient ===> ${d.active}")
+          .toList();
+
+      final feedback = await geminiService.getDrugsFeedback(drugNames);
+
+      geminiFeedback.value = feedback;
+      log("Gemini Feedback: $feedback");
+    } catch (e) {
+      log("Gemini error: $e");
+      geminiFeedback.value = "Could not fetch AI feedback.";
+    }
   }
 }

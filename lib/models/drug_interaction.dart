@@ -34,8 +34,8 @@ class DrugInteraction {
     }
 
     return DrugInteraction(
-      activeIngredientA: json['drugAId']?.toString() ?? '',
-      activeIngredientB: json['drugBId']?.toString() ?? '',
+      activeIngredientA: json['activeIngredientA']?.toString() ?? '',
+      activeIngredientB: json['activeIngredientB']?.toString() ?? '',
       severity: parseSeverity(json['severity']?.toString()),
       description: json['description']?.toString() ?? '',
       mechanism: json['mechanism']?.toString() ?? '',

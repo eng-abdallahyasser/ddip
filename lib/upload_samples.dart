@@ -65,8 +65,8 @@ Future<void> uploadInteractions({required void Function(String) onLog}) async {
       // Ensure required fields exist; fall back to empty strings when missing
       final entry = {
         'id': map['id']?.toString() ?? '',
-        'drugAId': map['drugA']?.toString() ?? map['drugAId']?.toString() ?? map['a']?.toString() ?? '',
-        'drugBId': map['drugB']?.toString() ?? map['drugBId']?.toString() ?? map['b']?.toString() ?? '',
+        'activeIngredientA': map['activeIngredientA']?.toString() ?? '',
+        'activeIngredientB': map['activeIngredientB']?.toString() ?? '',
         'severity':
             map['severity']?.toString() ?? map['level']?.toString() ?? 'mild',
         'description': map['description']?.toString() ?? '',
@@ -142,7 +142,7 @@ class _UploadSamplesButtonState extends State<UploadSamplesButton> {
           children: [
             Expanded(
               child: ElevatedButton(
-                onPressed: _running ? null : _run,
+                onPressed:(){},
                 child: Text(
                   _running
                       ? 'Uploading drugs...'
@@ -153,7 +153,7 @@ class _UploadSamplesButtonState extends State<UploadSamplesButton> {
             const SizedBox(width: 12),
             Expanded(
               child: ElevatedButton(
-                onPressed: _runningInteractions ? null : _runInteractions,
+                onPressed:(){},
                 child: Text(
                   _runningInteractions
                       ? 'Uploading interactions...'
