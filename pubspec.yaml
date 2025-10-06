@@ -70,6 +70,16 @@ flutter:
     - assets/images/
     - lib/sample.json
     - lib/interactions.json
+    - assets/data/ddinter_downloads_code_A.csv
+    - assets/data/ddinter_downloads_code_B.csv
+    - assets/data/ddinter_downloads_code_D.csv
+    - assets/data/ddinter_downloads_code_H.csv
+    - assets/data/ddinter_downloads_code_L.csv
+    - assets/data/ddinter_downloads_code_P.csv
+    - assets/data/ddinter_downloads_code_R.csv
+    - assets/data/ddinter_downloads_code_V.csv
+
+
 
   # To add assets to your application, add an assets section, like this:
   # assets:

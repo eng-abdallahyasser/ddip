@@ -1,5 +1,7 @@
+import 'package:ddip/modules/interaction/views/ddinter_interaction_card.dart';
 import 'package:ddip/modules/interaction/views/drug_card_widget.dart';
 import 'package:ddip/modules/interaction/views/gemini_feedback_widget.dart';
+import 'package:ddip/modules/interaction/views/interaction_result_card.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -48,36 +50,58 @@ class InteractionView extends StatelessWidget {
                       ...c.selectedDrugs.map(
                         (drug) => DrugCardWidget(
                           drug: drug,
-                          onDeleted: () => c.removeSelectedAt(c.selectedDrugs.indexOf(drug)),
+                          onDeleted: () =>
+                              c.removeSelectedAt(c.selectedDrugs.indexOf(drug)),
                         ),
                       ),
-                    // Interactions section
-                    if (c.interactionsFounded.isNotEmpty &&
+                      //DDInter Interactions section
+                    if (c.dDInterInteractionsFounded.isNotEmpty &&
                         c.suggestions.isEmpty) ...[
                       const SizedBox(height: 12),
                       const Text(
-                        'Interactions found',
+                        'DDInter Interactions found',   
                         style: TextStyle(fontWeight: FontWeight.bold),
                       ),
                       const SizedBox(height: 8),
-                      ...c.interactionsFounded.map(
-                        (it) => Card(
-                          child: ListTile(
-                            title: Text(
-                              '${it.activeIngredientA} ↔ ${it.activeIngredientB}',
-                            ),
-                            subtitle: Text(it.description),
-                            trailing: Text(
-                              it.severity.toString().split('.').last,
-                            ),
-                          ),
+                      ...c.dDInterInteractionsFounded.map(
+                        (it) => DDInterInteractionCard(
+                          interaction: it,
+                          onTap: () {
+                            // Handle tap to show detailed view
+                          },
                         ),
                       ),
                     ],
-
+                    //OpenFDA Interactions section
+                    if (c.openFDAInteractionsFounded.isNotEmpty &&
+                        c.suggestions.isEmpty) ...[
+                      const SizedBox(height: 12),
+                      const Text(
+                        'OpenFDA Interactions found',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 8),
+                      ...c.openFDAInteractionsFounded.map(
+                        (it) => OpenFDAInteractionResultCard(
+                          interactionResult: it,
+                          onTap: () {
+                            // Handle tap to show detailed view
+                          },
+                          showDrugInfo: true,
+                        ),
+                      ),
+                    ],
+                    // Gemini feedback section
                     if (c.geminiFeedback.value.isNotEmpty &&
                         c.suggestions.isEmpty)
-                      GeminiFeedbackWidget(text: c.geminiFeedback.value),
+                      ...[
+                        const SizedBox(height: 8),
+                        const Text(
+                          'Gemini AI Feedback',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        const SizedBox(height: 8),
+                        GeminiFeedbackWidget(text: c.geminiFeedback.value)],
 
                     // Suggestions list
                     if (c.suggestions.isNotEmpty)

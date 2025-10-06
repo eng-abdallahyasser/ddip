@@ -1,27 +1,36 @@
 import 'dart:developer';
 import 'package:ddip/data/services/gemini_service.dart';
 import 'package:ddip/models/drug.dart';
+import 'package:ddip/models/drug_interaction.dart';
+import 'package:ddip/services/open_fda_service.dart';
+import 'package:ddip/utils/interaction_import.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import '../../../data/repositories/drugs_repository.dart';
 import '../../../data/repositories/interactions_repository.dart';
-import '../../../models/drug_interaction.dart';
 
 class InteractionController extends GetxController {
+  // final NLMDrugInteractionService _nlmInteractionService =
+  //     NLMDrugInteractionService();
+  final OpenFDADrugService _openFDADrugService = OpenFDADrugService();
   final allDrugs = <dynamic>[].obs; // holds SearchDrug objects
   // suggestions holds SearchDrug-like objects matching current search
-  final allInteractions = <dynamic>[].obs;
+  final dDInterInteractionsFounded = <DrugInteraction>[].obs;
+
+  final List<DrugInteraction> allDDInterInteractions = <DrugInteraction>[];
 
   final suggestions = <dynamic>[].obs;
   // selected holds full Drug maps (as returned by fetchDrugById)
   final selectedDrugs = <Drug>[].obs;
-  final setOfActiveIngredients = <String>{}.obs;
+  final setOfActiveIngredients = <String>{};
+  final setOfActiveIngredientsRxcui = <String>{};
+  final setOfActivesOpenFDAInfo = <DrugOpenFDAInfo>{};
 
   final geminiService = GeminiService();
   final geminiFeedback = "".obs; // store feedback text
 
   // found interactions between selected drugs
-  final interactionsFounded = <DrugInteraction>[].obs;
+  final openFDAInteractionsFounded = <OpenFDAInteractionResult>[].obs;
   final loading = false.obs;
 
   final TextEditingController searchController = TextEditingController();
@@ -36,10 +45,60 @@ class InteractionController extends GetxController {
   });
 
   @override
-  void onInit() {
+  void onInit() async {
     super.onInit();
     _fetchAllDrugNames();
+    await _loadAllDDInterInteractions();
+
     searchController.addListener(_onTextChanged);
+  }
+
+  Future<void> _loadAllDDInterInteractions() async {
+    allDDInterInteractions.addAll(
+      await importDrugInteractionsFromCsv(
+        'assets/data/ddinter_downloads_code_A.csv',
+      ),
+    );
+    allDDInterInteractions.addAll(
+      await importDrugInteractionsFromCsv(
+        'assets/data/ddinter_downloads_code_B.csv',
+      ),
+    );
+    allDDInterInteractions.addAll(
+      await importDrugInteractionsFromCsv(
+        'assets/data/ddinter_downloads_code_D.csv',
+      ),
+    );
+    allDDInterInteractions.addAll(
+      await importDrugInteractionsFromCsv(
+        'assets/data/ddinter_downloads_code_H.csv',
+      ),
+    );
+    allDDInterInteractions.addAll(
+      await importDrugInteractionsFromCsv(
+        'assets/data/ddinter_downloads_code_L.csv',
+      ),
+    );
+    allDDInterInteractions.addAll(
+      await importDrugInteractionsFromCsv(
+        'assets/data/ddinter_downloads_code_P.csv',
+      ),
+    );
+    allDDInterInteractions.addAll(
+      await importDrugInteractionsFromCsv(
+        'assets/data/ddinter_downloads_code_R.csv',
+      ),
+    );
+    allDDInterInteractions.addAll(
+      await importDrugInteractionsFromCsv(
+        'assets/data/ddinter_downloads_code_V.csv',
+      ),
+    );
+    log(
+      'Total imported DDInter interactions: ${allDDInterInteractions.where((e) {
+        return e.severity == InteractionSeverity.unknown;
+      }).length}',
+    );
   }
 
   @override
@@ -53,8 +112,6 @@ class InteractionController extends GetxController {
   Future<void> _fetchAllDrugNames() async {
     try {
       final drugs = await drugsRepository.fetchAllDrugs();
-      final interactions = await interactionsRepository.fetchAllInteractions();
-      allInteractions.assignAll(interactions);
       allDrugs.assignAll(drugs);
     } catch (_) {
       // ignore errors for now
@@ -70,8 +127,7 @@ class InteractionController extends GetxController {
     final matches = allDrugs
         .where((d) {
           final en = (d.enName ?? '').toString().toLowerCase();
-          final ar = (d.arName ?? '').toString().toLowerCase();
-          return en.contains(q) || ar.contains(q);
+          return en.startsWith(q);
         })
         .take(10)
         .toList();
@@ -93,93 +149,104 @@ class InteractionController extends GetxController {
 
     loading.value = true;
     geminiFeedback.value = "Gemini thinking...";
-
-    // fetch full drug properties
-    final full = await drugsRepository.fetchDrugById(id);
-    if (full == null) return;
-    for (final activeIngredient in full.activeIngredients) {
-      setOfActiveIngredients.add(activeIngredient);
-    }
-    setOfActiveIngredients.toSet();
-
-    log("fetchDrug ${full.toString()}");
-
-    selectedDrugs.add(full);
-
-    checkInteractions();
-    getGeminiFeedback();
-
     searchController.clear();
     focusNode.requestFocus();
     suggestions.clear();
+
+    // fetch full drug properties
+    final fullDrug = await drugsRepository.fetchDrugById(id);
+    if (fullDrug == null) return;
+    for (final activeIngredient in fullDrug.activeIngredients) {
+      setOfActiveIngredients.add(activeIngredient);
+      // Here you would typically look up the RXCUI for the active ingredient.
+      // final rxcui = await _nlmInteractionService.getRxCuiByName(
+      //   activeIngredient.toLowerCase(),
+      // );
+      final openFDAInfo = await _openFDADrugService.searchDrug(
+        activeIngredient,
+      );
+      if (openFDAInfo.isNotEmpty) {
+        setOfActivesOpenFDAInfo.addAll(openFDAInfo);
+        log("Added OpenFDA info for: $activeIngredient");
+      }
+      // if (rxcui != null) {
+      //   setOfActiveIngredientsRxcui.add(rxcui);
+      //   log("Added RXCUI: $rxcui");
+      // } else {
+      //   log(
+      //     "No RXCUI found for active ingredient: ${activeIngredient.toLowerCase()}",
+      //   );
+      // }
+    }
+    setOfActiveIngredients.toSet();
+    setOfActiveIngredientsRxcui.toSet();
+    setOfActivesOpenFDAInfo.toSet();
+
+    log("fetchDrug ${fullDrug.toString()}");
+
+    selectedDrugs.add(fullDrug);
+
+    checkInteractions();
+    getGeminiFeedback();
 
     loading.value = false;
   }
 
   /// Recompute interactions for all currently selected drugs.
   Future<void> checkInteractions() async {
-    interactionsFounded.clear();
-
     if (selectedDrugs.length < 2) return;
-
-    // iterate over unique pairs (i < j)
-    for (var i = 0; i < selectedDrugs.length; i++) {
-      final drugA = selectedDrugs[i];
-      for (var j = i + 1; j < selectedDrugs.length; j++) {
-        final drugB = selectedDrugs[j];
-
-        final existing = <DrugInteraction>[];
-
-        for (final activeIngredientA in drugA.activeIngredients) {
-          for (final activeIngredientB in drugB.activeIngredients) {
-            log(
-              'checking interactions for $activeIngredientA and $activeIngredientB',
-            );
-
-            SearckInteractionDrug? A = allInteractions.firstWhereOrNull(
-              (d) =>
-                  (d.activeIngredientA == activeIngredientA ||
-                  d.activeIngredientB == activeIngredientA),
-            );
-            SearckInteractionDrug? B = allInteractions.firstWhereOrNull(
-              (d) =>
-                  (d.activeIngredientA == activeIngredientB ||
-                  d.activeIngredientB == activeIngredientB),
-            );
-
-            if (A != null) {
-              final ia = await interactionsRepository.getInteractionById(A.id);
-              existing.add(ia);
-            }
-            if (B != null) {
-              final ib = await interactionsRepository.getInteractionById(B.id);
-              existing.add(ib);
-            }
-          }
-        }
-
-        if (existing.isNotEmpty) {
+    // Check DDInter interactions
+    dDInterInteractionsFounded.clear();
+    for (var i = 0; i < setOfActiveIngredients.length - 1; i++) {
+      for (var j = i + 1; j < setOfActiveIngredients.length; j++) {
+        final drugA = setOfActiveIngredients.elementAt(i);
+        final drugB = setOfActiveIngredients.elementAt(j);
+        final ddInterInteractions = allDDInterInteractions.where((interaction) {
+          final matchA =
+              (interaction.activeIngredientA.toLowerCase() ==
+              drugA.toLowerCase());
+          final matchB =
+              (interaction.activeIngredientB.toLowerCase() ==
+              drugB.toLowerCase());
+          final reverseMatchA =
+              (interaction.activeIngredientA.toLowerCase() ==
+              drugB.toLowerCase());
+          final reverseMatchB =
+              (interaction.activeIngredientB.toLowerCase() ==
+              drugA.toLowerCase());
+          return (matchA && matchB) || (reverseMatchA && reverseMatchB);
+        }).toList();
+        if (ddInterInteractions.isNotEmpty) {
+          dDInterInteractionsFounded.addAll(ddInterInteractions);
           log(
-            'Found existing interactions for ${drugA.id} and ${drugB.id}: ${existing.length}',
+            "Found ${ddInterInteractions.length} interactions from DDInter between $drugA and $drugB.",
           );
-          for (final ex in existing) {
-            if (!interactionsFounded.any(
-              (it) =>
-                  it.activeIngredientA == ex.activeIngredientA &&
-                  it.activeIngredientB == ex.activeIngredientB,
-            )) {
-              interactionsFounded.add(ex);
-            }
-          }
-        } else {
-          // No stored interaction found between these two drugs. You may add
-          // heuristic detection here if desired (shared actives, etc.).
+          log("ex :${ddInterInteractions[0].toMap()}");
         }
       }
     }
+
+    // Check OpenFDA interactions
+    // iterate over unique pairs (i < j)
+    openFDAInteractionsFounded.clear();
+
+    for (var i = 0; i < setOfActivesOpenFDAInfo.length - 1; i++) {
+      for (var j = i + 1; j < setOfActivesOpenFDAInfo.length; j++) {
+        final drugA = setOfActivesOpenFDAInfo.elementAt(i);
+        final drugB = setOfActivesOpenFDAInfo.elementAt(j);
+        final interaction = _openFDADrugService
+            .checkInteractionsBetweenDrugsInfo(drugA, drugB);
+        if (interaction.found) {
+          openFDAInteractionsFounded.add(interaction);
+        }
+      }
+    }
+    log(
+      "Found ${openFDAInteractionsFounded.length} interactions from OpenFDA.",
+    );
   }
 
-  void removeSelectedAt(int index) {
+  void removeSelectedAt(int index) async {
     selectedDrugs.removeAt(index);
     // Recompute interactions after a removal
     setOfActiveIngredients.clear();
@@ -190,6 +257,7 @@ class InteractionController extends GetxController {
     }
     setOfActiveIngredients.toSet();
     checkInteractions();
+    getGeminiFeedback();
   }
 
   Future<void> getGeminiFeedback() async {

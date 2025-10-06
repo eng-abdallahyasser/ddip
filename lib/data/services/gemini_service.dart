@@ -28,12 +28,6 @@ Please explain the possible risks and give safe usage advice in clear simple lan
             ],
           },
         ],
-        "generationConfig": {
-          "temperature": 0.1, // lower = more factual, higher = creative
-          "topP": 0.95,
-          "topK": 40,
-          "maxOutputTokens": 100,
-        },
       }),
     );
 

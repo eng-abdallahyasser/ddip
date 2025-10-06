@@ -13,7 +13,7 @@ class DrugCardWidget extends StatelessWidget {
       child: ListTile(
         title: Text(drug.enName),
         subtitle: Text(drug.activeIngredients.join(", ") ,style: const TextStyle(fontSize: 12)),
-        trailing: const Icon(Icons.delete),
+        trailing: const Icon(Icons.close_rounded, size: 24),
         onTap: onDeleted,
       ),
     );
